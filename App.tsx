@@ -20,7 +20,7 @@ import GameTableScreen from './screens/GameTableScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import JoinRoomModal from './components/JoinRoomModal';
 
-const SERVER_URL = `ws://${window.location.hostname}:8080`;
+const SERVER_URL = `wss://${window.location.hostname}:8080`;
 
 
 const App: React.FC = () => {
