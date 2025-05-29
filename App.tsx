@@ -19,8 +19,10 @@ import LobbyScreen from './screens/LobbyScreen';
 import GameTableScreen from './screens/GameTableScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import JoinRoomModal from './components/JoinRoomModal';
-
-const SERVER_URL = `wss://${window.location.hostname}:8080`;
+const SERVER_URL = 
+  window.location.protocol === 'https:' 
+    ? 'wss://dungeon-qrdh.onrender.com:8080' 
+    : 'ws://localhost:8080';
 
 
 const App: React.FC = () => {
