@@ -1,10 +1,8 @@
-// tailwind.config.js
 module.exports = {
   content: [
     "./index.html",
-    "./index.tsx",
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "./screens/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./*.{ts,tsx}" // если index.tsx не в src
   ],
   theme: {
     extend: {},
