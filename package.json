@@ -9,6 +9,7 @@
   "devDependencies": {
     "@types/express": "^5.0.2",
     "@types/node": "^22.15.27",
+    "@types/uuid": "^10.0.0",
     "@types/ws": "^8.18.1",
     "concurrently": "^7.6.0",
     "ts-node": "^10.9.2",
