@@ -21,22 +21,22 @@ import {
   handlePlayCardFromHand, handleEndTurn, handleLootRoom
 } from './gameLogic';
 
-const app = express();
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
-
-// 👇 Добавляем эти строки для правильной работы __dirname в ES-модулях
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Отдаём собранный фронт (vite build)
-app.use(express.static(path.join(__dirname, '../../dist')));
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+// 📦 Раздача собранного фронта из public
+app.use(express.static(path.join(__dirname, '../public')));
 
+// SPA fallback: отдаём index.html на все остальные маршруты
 app.get('*', (_, res) => {
-  res.sendFile(path.join(__dirname, '../../dist/index.html'));
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-const PORT = Number(process.env.PORT) || 8080;
+const PORT = process.env.PORT || 8080;
+
 
 wss.on('connection', (ws: WebSocket) => {
   const clientId = uuidv4();
@@ -132,6 +132,6 @@ wss.on('connection', (ws: WebSocket) => {
   }));
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
   console.log(`Сервер Dungeon Delvers Online запущен на порту ${PORT}`);
 });

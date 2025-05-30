@@ -7,18 +7,18 @@ import { fileURLToPath } from 'url';
 import { ClientMessageType, ServerMessageType } from './types';
 import { handleCreateRoom, handleJoinRoom, handleDisconnect, getRoom, addChatMessageToRoom } from './roomManager';
 import { handleStartGame, handleKickOpenDoor, handleResolveDoorCard, handlePlayCardFromHand, handleEndTurn, handleLootRoom } from './gameLogic';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-// 👇 Добавляем эти строки для правильной работы __dirname в ES-модулях
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// ✅ Отдаём собранный фронт (vite build)
-app.use(express.static(path.join(__dirname, '../../dist')));
+// 📦 Раздача собранного фронта из public
+app.use(express.static(path.join(__dirname, '../public')));
+// SPA fallback: отдаём index.html на все остальные маршруты
 app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, '../../dist/index.html'));
+    res.sendFile(path.join(__dirname, '../public/index.html'));
 });
-const PORT = Number(process.env.PORT) || 8080;
+const PORT = process.env.PORT || 8080;
 wss.on('connection', (ws) => {
     const clientId = uuidv4();
     console.log(`Клиент ${clientId} подключился`);
@@ -107,6 +107,6 @@ wss.on('connection', (ws) => {
         }
     }));
 });
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
     console.log(`Сервер Dungeon Delvers Online запущен на порту ${PORT}`);
 });
