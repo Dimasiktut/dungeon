@@ -1,23 +1,26 @@
-"use strict";
-// server.ts
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const http_1 = __importDefault(require("http"));
-const ws_1 = require("ws");
-const uuid_1 = require("uuid");
-const types_1 = require("./types");
-const roomManager_1 = require("./roomManager");
-const gameLogic_1 = require("./gameLogic");
-const app = (0, express_1.default)();
-const server = http_1.default.createServer(app);
-const wss = new ws_1.WebSocketServer({ server });
-// ✅ Преобразуем порт в число
+import express from 'express';
+import http from 'http';
+import { WebSocketServer } from 'ws';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { ClientMessageType, ServerMessageType } from './types';
+import { handleCreateRoom, handleJoinRoom, handleDisconnect, getRoom, addChatMessageToRoom } from './roomManager';
+import { handleStartGame, handleKickOpenDoor, handleResolveDoorCard, handlePlayCardFromHand, handleEndTurn, handleLootRoom } from './gameLogic';
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+// 👇 Добавляем эти строки для правильной работы __dirname в ES-модулях
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+// ✅ Отдаём собранный фронт (vite build)
+app.use(express.static(path.join(__dirname, '../../dist')));
+app.get('*', (_, res) => {
+    res.sendFile(path.join(__dirname, '../../dist/index.html'));
+});
 const PORT = Number(process.env.PORT) || 8080;
 wss.on('connection', (ws) => {
-    const clientId = (0, uuid_1.v4)();
+    const clientId = uuidv4();
     console.log(`Клиент ${clientId} подключился`);
     ws.clientId = clientId;
     ws.on('message', (message) => {
@@ -26,57 +29,57 @@ wss.on('connection', (ws) => {
             console.log(`Получено сообщение от ${clientId}:`, clientMessage);
             clientMessage.playerId = clientId;
             switch (clientMessage.type) {
-                case types_1.ClientMessageType.CREATE_ROOM:
-                    (0, roomManager_1.handleCreateRoom)(ws, clientMessage.payload);
+                case ClientMessageType.CREATE_ROOM:
+                    handleCreateRoom(ws, clientMessage.payload);
                     break;
-                case types_1.ClientMessageType.JOIN_ROOM:
-                    (0, roomManager_1.handleJoinRoom)(ws, clientMessage.payload);
+                case ClientMessageType.JOIN_ROOM:
+                    handleJoinRoom(ws, clientMessage.payload);
                     break;
-                case types_1.ClientMessageType.SEND_CHAT_MESSAGE: {
-                    const room = clientMessage.roomId ? (0, roomManager_1.getRoom)(clientMessage.roomId) : null;
+                case ClientMessageType.SEND_CHAT_MESSAGE: {
+                    const room = clientMessage.roomId ? getRoom(clientMessage.roomId) : null;
                     const player = room?.players.find(p => p.id === clientMessage.playerId);
                     if (room && player) {
                         const chatPayload = clientMessage.payload;
-                        (0, roomManager_1.addChatMessageToRoom)(room.id, player, chatPayload.text);
+                        addChatMessageToRoom(room.id, player, chatPayload.text);
                     }
                     else {
                         ws.send(JSON.stringify({
-                            type: types_1.ServerMessageType.ERROR,
+                            type: ServerMessageType.ERROR,
                             payload: { message: "Комната или игрок не найдены для чата." }
                         }));
                     }
                     break;
                 }
-                case types_1.ClientMessageType.START_GAME:
-                    (0, gameLogic_1.handleStartGame)(clientMessage.roomId, clientMessage.playerId);
+                case ClientMessageType.START_GAME:
+                    handleStartGame(clientMessage.roomId, clientMessage.playerId);
                     break;
-                case types_1.ClientMessageType.KICK_OPEN_DOOR:
-                    (0, gameLogic_1.handleKickOpenDoor)(clientMessage.roomId, clientMessage.playerId);
+                case ClientMessageType.KICK_OPEN_DOOR:
+                    handleKickOpenDoor(clientMessage.roomId, clientMessage.playerId);
                     break;
-                case types_1.ClientMessageType.RESOLVE_DOOR_CARD: {
+                case ClientMessageType.RESOLVE_DOOR_CARD: {
                     const payload = clientMessage.payload;
                     if (payload.resolutionAction) {
-                        (0, gameLogic_1.handleResolveDoorCard)(clientMessage.roomId, clientMessage.playerId, payload.resolutionAction);
+                        handleResolveDoorCard(clientMessage.roomId, clientMessage.playerId, payload.resolutionAction);
                     }
                     break;
                 }
-                case types_1.ClientMessageType.PLAY_CARD_FROM_HAND: {
+                case ClientMessageType.PLAY_CARD_FROM_HAND: {
                     const payload = clientMessage.payload;
                     if (payload.cardId) {
-                        (0, gameLogic_1.handlePlayCardFromHand)(clientMessage.roomId, clientMessage.playerId, payload.cardId);
+                        handlePlayCardFromHand(clientMessage.roomId, clientMessage.playerId, payload.cardId);
                     }
                     break;
                 }
-                case types_1.ClientMessageType.END_TURN:
-                    (0, gameLogic_1.handleEndTurn)(clientMessage.roomId, clientMessage.playerId);
+                case ClientMessageType.END_TURN:
+                    handleEndTurn(clientMessage.roomId, clientMessage.playerId);
                     break;
-                case types_1.ClientMessageType.LOOT_ROOM:
-                    (0, gameLogic_1.handleLootRoom)(clientMessage.roomId, clientMessage.playerId);
+                case ClientMessageType.LOOT_ROOM:
+                    handleLootRoom(clientMessage.roomId, clientMessage.playerId);
                     break;
                 default:
                     console.warn(`Неизвестный тип сообщения: ${clientMessage.type}`);
                     ws.send(JSON.stringify({
-                        type: types_1.ServerMessageType.ERROR,
+                        type: ServerMessageType.ERROR,
                         payload: { message: `Неизвестный тип сообщения: ${clientMessage.type}` }
                     }));
             }
@@ -84,20 +87,20 @@ wss.on('connection', (ws) => {
         catch (error) {
             console.error('Ошибка обработки сообщения:', message, error);
             ws.send(JSON.stringify({
-                type: types_1.ServerMessageType.ERROR,
+                type: ServerMessageType.ERROR,
                 payload: { message: "Неверный формат сообщения." }
             }));
         }
     });
     ws.on('close', () => {
         console.log(`Клиент ${clientId} отключился`);
-        (0, roomManager_1.handleDisconnect)(ws);
+        handleDisconnect(ws);
     });
     ws.on('error', (error) => {
         console.error(`Ошибка WebSocket у клиента ${clientId}:`, error);
     });
     ws.send(JSON.stringify({
-        type: types_1.ServerMessageType.NOTIFICATION,
+        type: ServerMessageType.NOTIFICATION,
         payload: {
             message: `Подключено к серверу. Ваш ID: ${clientId}`,
             level: 'info'

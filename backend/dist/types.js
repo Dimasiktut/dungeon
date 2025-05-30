@@ -1,11 +1,8 @@
-"use strict";
 // This file would ideally share types with the frontend.
 // For this exercise, we'll re-declare or adapt necessary types.
 // In a monorepo, you'd share a 'common' types package.
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sanitizeRoomForClient = exports.sanitizeGameStateForClient = exports.sanitizePlayerForClient = exports.ServerMessageType = exports.ClientMessageType = exports.CardType = exports.TurnPhase = void 0;
 // --- Copied/Adapted from frontend/types.ts ---
-var TurnPhase;
+export var TurnPhase;
 (function (TurnPhase) {
     TurnPhase["KickOpenDoor"] = "KickOpenDoor";
     TurnPhase["ResolveDoorCard"] = "ResolveDoorCard";
@@ -14,8 +11,8 @@ var TurnPhase;
     TurnPhase["LookingForTrouble"] = "LookingForTrouble";
     TurnPhase["Charity"] = "Charity";
     TurnPhase["TurnEnd"] = "TurnEnd";
-})(TurnPhase = exports.TurnPhase || (exports.TurnPhase = {}));
-var CardType;
+})(TurnPhase || (TurnPhase = {}));
+export var CardType;
 (function (CardType) {
     CardType["Door"] = "Door";
     CardType["Treasure"] = "Treasure";
@@ -27,9 +24,9 @@ var CardType;
     CardType["OneShot"] = "OneShot";
     CardType["MonsterEnhancer"] = "MonsterEnhancer";
     CardType["SpecialDoor"] = "SpecialDoor";
-})(CardType = exports.CardType || (exports.CardType = {}));
+})(CardType || (CardType = {}));
 // --- WebSocket Message Types (Mirrors frontend for consistency) ---
-var ClientMessageType;
+export var ClientMessageType;
 (function (ClientMessageType) {
     ClientMessageType["CREATE_ROOM"] = "CREATE_ROOM";
     ClientMessageType["JOIN_ROOM"] = "JOIN_ROOM";
@@ -41,8 +38,8 @@ var ClientMessageType;
     ClientMessageType["PLAY_CARD_FROM_HAND"] = "PLAY_CARD_FROM_HAND";
     ClientMessageType["END_TURN"] = "END_TURN";
     ClientMessageType["LOOT_ROOM"] = "LOOT_ROOM";
-})(ClientMessageType = exports.ClientMessageType || (exports.ClientMessageType = {}));
-var ServerMessageType;
+})(ClientMessageType || (ClientMessageType = {}));
+export var ServerMessageType;
 (function (ServerMessageType) {
     ServerMessageType["ERROR"] = "ERROR";
     ServerMessageType["ROOM_CREATED"] = "ROOM_CREATED";
@@ -54,25 +51,22 @@ var ServerMessageType;
     ServerMessageType["GAME_STARTED"] = "GAME_STARTED";
     ServerMessageType["GAME_STATE_UPDATE"] = "GAME_STATE_UPDATE";
     ServerMessageType["NOTIFICATION"] = "NOTIFICATION";
-})(ServerMessageType = exports.ServerMessageType || (exports.ServerMessageType = {}));
+})(ServerMessageType || (ServerMessageType = {}));
 // --- Sanitization Helper Functions ---
-function sanitizePlayerForClient(player) {
+export function sanitizePlayerForClient(player) {
     const { ws, ...clientSafePlayer } = player;
     return clientSafePlayer;
 }
-exports.sanitizePlayerForClient = sanitizePlayerForClient;
-function sanitizeGameStateForClient(gameState) {
+export function sanitizeGameStateForClient(gameState) {
     return {
         ...gameState,
         players: gameState.players.map(sanitizePlayerForClient),
     };
 }
-exports.sanitizeGameStateForClient = sanitizeGameStateForClient;
-function sanitizeRoomForClient(room) {
+export function sanitizeRoomForClient(room) {
     return {
         ...room,
         players: room.players.map(sanitizePlayerForClient),
         gameState: room.gameState ? sanitizeGameStateForClient(room.gameState) : null,
     };
 }
-exports.sanitizeRoomForClient = sanitizeRoomForClient;

@@ -1,21 +1,13 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sanitizeRoomForClient = exports.addChatMessageToRoom = exports.handleDisconnect = exports.handleJoinRoom = exports.handleCreateRoom = exports.broadcastToRoom = exports.findRoomByPlayerId = exports.getRoom = void 0;
-const ws_1 = __importDefault(require("ws"));
-const uuid_1 = require("uuid");
-const types_1 = require("./types"); // Backend types
-Object.defineProperty(exports, "sanitizeRoomForClient", { enumerable: true, get: function () { return types_1.sanitizeRoomForClient; } });
+import WebSocket from 'ws';
+import { v4 as uuidv4 } from 'uuid';
+import { ServerMessageType, TurnPhase, sanitizeRoomForClient, sanitizePlayerForClient, sanitizeGameStateForClient } from './types'; // Backend types
 // Removed imports from gameLogic as they are not used here and gameLogic sources from gameData
 // In-memory store for active rooms
 const activeRooms = new Map();
-function getRoom(roomId) {
+export function getRoom(roomId) {
     return activeRooms.get(roomId);
 }
-exports.getRoom = getRoom;
-function findRoomByPlayerId(playerId) {
+export function findRoomByPlayerId(playerId) {
     for (const room of activeRooms.values()) {
         if (room.players.some(p => p.id === playerId)) {
             return room;
@@ -23,21 +15,19 @@ function findRoomByPlayerId(playerId) {
     }
     return undefined;
 }
-exports.findRoomByPlayerId = findRoomByPlayerId;
-function broadcastToRoom(roomId, message, excludePlayerId) {
+export function broadcastToRoom(roomId, message, excludePlayerId) {
     const room = activeRooms.get(roomId);
     if (!room)
         return;
     const messageString = JSON.stringify(message);
     room.players.forEach(player => {
-        if (player.id !== excludePlayerId && player.ws.readyState === ws_1.default.OPEN) {
+        if (player.id !== excludePlayerId && player.ws.readyState === WebSocket.OPEN) {
             player.ws.send(messageString);
         }
     });
 }
-exports.broadcastToRoom = broadcastToRoom;
-function handleCreateRoom(ws, payload) {
-    const roomId = (0, uuid_1.v4)().slice(0, 6).toUpperCase();
+export function handleCreateRoom(ws, payload) {
+    const roomId = uuidv4().slice(0, 6).toUpperCase();
     const hostId = ws.clientId;
     const hostPlayer = {
         id: hostId,
@@ -67,28 +57,27 @@ function handleCreateRoom(ws, payload) {
     activeRooms.set(roomId, newRoom);
     console.log(`Room ${roomId} created by ${hostPlayer.name} (ID: ${hostId})`);
     ws.send(JSON.stringify({
-        type: types_1.ServerMessageType.ROOM_CREATED,
-        payload: { room: (0, types_1.sanitizeRoomForClient)(newRoom), localPlayerId: hostId }
+        type: ServerMessageType.ROOM_CREATED,
+        payload: { room: sanitizeRoomForClient(newRoom), localPlayerId: hostId }
     }));
 }
-exports.handleCreateRoom = handleCreateRoom;
-function handleJoinRoom(ws, payload) {
+export function handleJoinRoom(ws, payload) {
     const room = activeRooms.get(payload.roomId);
     const playerId = ws.clientId;
     if (!room) {
-        ws.send(JSON.stringify({ type: types_1.ServerMessageType.ERROR, payload: { message: "Room not found." } }));
+        ws.send(JSON.stringify({ type: ServerMessageType.ERROR, payload: { message: "Room not found." } }));
         return;
     }
     if (room.gameState && room.gameState.isGameStarted) {
-        ws.send(JSON.stringify({ type: types_1.ServerMessageType.ERROR, payload: { message: "Cannot join a game that has already started." } }));
+        ws.send(JSON.stringify({ type: ServerMessageType.ERROR, payload: { message: "Cannot join a game that has already started." } }));
         return;
     }
     if (room.players.length >= room.settings.maxPlayers) {
-        ws.send(JSON.stringify({ type: types_1.ServerMessageType.ERROR, payload: { message: "Room is full." } }));
+        ws.send(JSON.stringify({ type: ServerMessageType.ERROR, payload: { message: "Room is full." } }));
         return;
     }
     if (room.players.find(p => p.id === playerId)) {
-        ws.send(JSON.stringify({ type: types_1.ServerMessageType.ERROR, payload: { message: "You are already in this room." } }));
+        ws.send(JSON.stringify({ type: ServerMessageType.ERROR, payload: { message: "You are already in this room." } }));
         return;
     }
     const newPlayer = {
@@ -105,16 +94,15 @@ function handleJoinRoom(ws, payload) {
     room.players.push(newPlayer);
     console.log(`Player ${newPlayer.name} (ID: ${playerId}) joined room ${room.id}`);
     ws.send(JSON.stringify({
-        type: types_1.ServerMessageType.ROOM_JOINED,
-        payload: { room: (0, types_1.sanitizeRoomForClient)(room), localPlayerId: playerId }
+        type: ServerMessageType.ROOM_JOINED,
+        payload: { room: sanitizeRoomForClient(room), localPlayerId: playerId }
     }));
     broadcastToRoom(room.id, {
-        type: types_1.ServerMessageType.PLAYER_JOINED_ROOM,
-        payload: { player: (0, types_1.sanitizePlayerForClient)(newPlayer), room: (0, types_1.sanitizeRoomForClient)(room) }
+        type: ServerMessageType.PLAYER_JOINED_ROOM,
+        payload: { player: sanitizePlayerForClient(newPlayer), room: sanitizeRoomForClient(room) }
     }, playerId);
 }
-exports.handleJoinRoom = handleJoinRoom;
-function handleDisconnect(ws) {
+export function handleDisconnect(ws) {
     const playerId = ws.clientId;
     if (!playerId)
         return;
@@ -124,7 +112,7 @@ function handleDisconnect(ws) {
             const disconnectedPlayer = room.players.splice(playerIndex, 1)[0];
             console.log(`Player ${disconnectedPlayer.name} (ID: ${playerId}) disconnected from room ${room.id}`);
             const systemMessage = {
-                id: (0, uuid_1.v4)(),
+                id: uuidv4(),
                 roomId: room.id,
                 playerId: 'system',
                 playerName: 'System',
@@ -135,11 +123,11 @@ function handleDisconnect(ws) {
             if (room.chatMessages.length > 50)
                 room.chatMessages.shift();
             broadcastToRoom(room.id, {
-                type: types_1.ServerMessageType.PLAYER_LEFT_ROOM,
-                payload: { playerId: disconnectedPlayer.id, room: (0, types_1.sanitizeRoomForClient)(room) }
+                type: ServerMessageType.PLAYER_LEFT_ROOM,
+                payload: { playerId: disconnectedPlayer.id, room: sanitizeRoomForClient(room) }
             });
             broadcastToRoom(room.id, {
-                type: types_1.ServerMessageType.CHAT_MESSAGE_BROADCAST,
+                type: ServerMessageType.CHAT_MESSAGE_BROADCAST,
                 payload: systemMessage
             });
             if (room.players.length === 0) {
@@ -178,7 +166,7 @@ function handleDisconnect(ws) {
                     }
                     if (newPlayerForTurn) {
                         gs.currentPlayerId = newPlayerForTurn.id;
-                        gs.turnPhase = types_1.TurnPhase.KickOpenDoor;
+                        gs.turnPhase = TurnPhase.KickOpenDoor;
                         addLogEntry(gs, `${disconnectedPlayer.name} disconnected. It's now ${newPlayerForTurn.name}'s turn.`);
                     }
                     else {
@@ -191,8 +179,8 @@ function handleDisconnect(ws) {
                     addLogEntry(gs, `${disconnectedPlayer.name} disconnected from the game.`);
                 }
                 broadcastToRoom(room.id, {
-                    type: types_1.ServerMessageType.GAME_STATE_UPDATE,
-                    payload: { gameState: (0, types_1.sanitizeGameStateForClient)(gs), roomId: room.id }
+                    type: ServerMessageType.GAME_STATE_UPDATE,
+                    payload: { gameState: sanitizeGameStateForClient(gs), roomId: room.id }
                 });
             }
             else if (room.players.length === 0) {
@@ -203,7 +191,6 @@ function handleDisconnect(ws) {
         }
     });
 }
-exports.handleDisconnect = handleDisconnect;
 function addLogEntry(gameState, message) {
     if (!gameState)
         return;
@@ -211,12 +198,12 @@ function addLogEntry(gameState, message) {
     if (gameState.log.length > 20)
         gameState.log.shift();
 }
-function addChatMessageToRoom(roomId, player, text) {
+export function addChatMessageToRoom(roomId, player, text) {
     const room = activeRooms.get(roomId);
     if (!room)
         return;
     const message = {
-        id: (0, uuid_1.v4)(),
+        id: uuidv4(),
         roomId: room.id,
         playerId: player.id,
         playerName: player.name,
@@ -228,8 +215,8 @@ function addChatMessageToRoom(roomId, player, text) {
         room.chatMessages.shift();
     }
     broadcastToRoom(roomId, {
-        type: types_1.ServerMessageType.CHAT_MESSAGE_BROADCAST,
+        type: ServerMessageType.CHAT_MESSAGE_BROADCAST,
         payload: message
     });
 }
-exports.addChatMessageToRoom = addChatMessageToRoom;
+export { sanitizeRoomForClient };
