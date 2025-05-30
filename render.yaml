@@ -1,9 +1,18 @@
 services:
   - type: web
-    name: dungeon-delvers
+    name: dungeon-backend
     env: node
-    rootDir: .
+    rootDir: backend
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    startCommand: node dist/server.js
+    autoDeploy: true
+    plan: free
+
+  - type: web
+    name: dungeon-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ../backend/public
     autoDeploy: true
     plan: free
