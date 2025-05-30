@@ -2,18 +2,16 @@
   "name": "dungeon-backend",
   "version": "1.0.0",
   "type": "module",
+  "main": "dist/server.js",
   "scripts": {
+    "dev": "tsc && node dist/server.js",
     "build": "tsc"
   },
-  "dependencies": {
-    "express": "^5.1.0",
-    "uuid": "^11.1.0",
-    "ws": "^8.18.2"
-  },
   "devDependencies": {
-    "@types/node": "^18.16.3",
-    "typescript": "^5.3.3"
+    "@types/express": "^5.0.2",
+    "@types/ws": "^8.18.1"
+  },
+  "dependencies": {
+    "path-to-regexp": "^8.2.0"
   }
 }
-
-

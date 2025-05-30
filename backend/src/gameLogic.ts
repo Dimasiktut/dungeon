@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import {
     ActiveRoom, GameState, Player, Card, CardType, TurnPhase,
     ServerMessageType, sanitizePlayerForClient, sanitizeRoomForClient, sanitizeGameStateForClient
-} from './types'; // Backend types
-import { getRoom, broadcastToRoom } from './roomManager';
+} from './types.js'; // Backend types
+import { getRoom, broadcastToRoom } from './roomManager.js';
 import {
     MOCK_DOOR_DECK as initialDoorDeck, // Renamed to avoid confusion with mutable deck in GameState
     MOCK_TREASURE_DECK as initialTreasureDeck, // Renamed
@@ -12,7 +12,7 @@ import {
     MAX_CARDS_IN_HAND,
     MIN_PLAYERS_TO_START,
     calculateGear
-} from './gameData'; // Import from gameData.ts
+} from './gameData.js'; // Import from gameData.ts
 
 // --- Game Logic Functions ---
 function shuffleDeck<T>(deck: T[]): T[] {

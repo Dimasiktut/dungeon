@@ -8,18 +8,19 @@ import { fileURLToPath } from 'url';
 import {
   ClientMessage, ClientMessageType, ServerMessageType, Player,
   CreateRoomPayload, JoinRoomPayload, SendChatMessagePayload, PlayerActionPayload
-} from './types';
+} from './types.js';
 
 import {
   handleCreateRoom, handleJoinRoom, handleDisconnect,
   broadcastToRoom, getRoom, sanitizeRoomForClient,
   addChatMessageToRoom, findRoomByPlayerId
-} from './roomManager';
+} from './roomManager.js';
 
 import {
   handleStartGame, handleKickOpenDoor, handleResolveDoorCard,
   handlePlayCardFromHand, handleEndTurn, handleLootRoom
-} from './gameLogic';
+} from './gameLogic.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -33,7 +34,6 @@ app.get('*', (_, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-
 
 wss.on('connection', (ws: WebSocket) => {
   const clientId = uuidv4();

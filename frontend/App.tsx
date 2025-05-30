@@ -5,7 +5,7 @@ import {
   CreateRoomPayload, JoinRoomPayload, SendChatMessagePayload, PlayerActionPayload,
   RoomCreatedPayload, RoomJoinedPayload, PlayerJoinedRoomPayload, PlayerLeftRoomPayload,
   ChatMessageBroadcastPayload, GameStateUpdatePayload, ErrorPayload, NotificationPayload, ActiveRoom, GameStartedPayload, RoomUpdatePayload
-} from './types';
+} from './types.js';
 import {
   DEFAULT_MAX_PLAYERS,
   DEFAULT_STARTING_LEVEL,

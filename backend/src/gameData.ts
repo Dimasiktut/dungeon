@@ -1,6 +1,6 @@
 
 import { v4 as uuidv4 } from 'uuid';
-import { Card, CardType, Player } from './types';
+import { Card, CardType, Player } from './types.js';
 
 // --- Shared Game Constants & Data ---
 

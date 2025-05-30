@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import { v4 as uuidv4 } from 'uuid';
-import { ServerMessageType, TurnPhase, sanitizeRoomForClient, sanitizePlayerForClient, sanitizeGameStateForClient } from './types'; // Backend types
+import { ServerMessageType, TurnPhase, sanitizeRoomForClient, sanitizePlayerForClient, sanitizeGameStateForClient } from './types.js'; // Backend types
 // Removed imports from gameLogic as they are not used here and gameLogic sources from gameData
 // In-memory store for active rooms
 const activeRooms = new Map();

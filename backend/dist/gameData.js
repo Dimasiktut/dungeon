@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { CardType } from './types';
+import { CardType } from './types.js';
 // --- Shared Game Constants & Data ---
 export const PLACEHOLDER_AVATARS = [
     'https://picsum.photos/seed/avatar1/100/100', 'https://picsum.photos/seed/avatar2/100/100',

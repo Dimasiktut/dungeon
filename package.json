@@ -2,6 +2,16 @@
   "name": "dungeon-delvers-online",
   "scripts": {
     "build": "npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend install && npm --prefix backend run build",
-    "start": "node backend/dist/server.js"
+    "start": "node backend/dist/server.js",
+    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "install-all": "npm --prefix frontend install && npm --prefix backend install"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.2",
+    "@types/node": "^22.15.27",
+    "@types/ws": "^8.18.1",
+    "concurrently": "^7.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

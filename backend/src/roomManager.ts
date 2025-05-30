@@ -6,7 +6,7 @@ import {
     CreateRoomPayload, JoinRoomPayload, ChatMessage, GameState, TurnPhase,
     sanitizeRoomForClient,
     sanitizePlayerForClient, sanitizeGameStateForClient, PlayerForClient, ActiveRoomForClient
-} from './types'; // Backend types
+} from './types.js'; // Backend types
 // Removed imports from gameLogic as they are not used here and gameLogic sources from gameData
 
 // In-memory store for active rooms

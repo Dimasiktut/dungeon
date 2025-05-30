@@ -1,8 +1,8 @@
-import { CardType, TurnPhase, ServerMessageType, sanitizeGameStateForClient } from './types'; // Backend types
-import { getRoom, broadcastToRoom } from './roomManager';
+import { CardType, TurnPhase, ServerMessageType, sanitizeGameStateForClient } from './types.js'; // Backend types
+import { getRoom, broadcastToRoom } from './roomManager.js';
 import { MOCK_DOOR_DECK as initialDoorDeck, // Renamed to avoid confusion with mutable deck in GameState
 MOCK_TREASURE_DECK as initialTreasureDeck, // Renamed
-INITIAL_PLAYER_CARDS_HAND_SIZE, MAX_CARDS_IN_HAND, MIN_PLAYERS_TO_START, calculateGear } from './gameData'; // Import from gameData.ts
+INITIAL_PLAYER_CARDS_HAND_SIZE, MAX_CARDS_IN_HAND, MIN_PLAYERS_TO_START, calculateGear } from './gameData.js'; // Import from gameData.ts
 // --- Game Logic Functions ---
 function shuffleDeck(deck) {
     const shuffled = [...deck]; // Create a new array from the initial deck
@@ -343,7 +343,7 @@ export function handleEndTurn(roomId, playerId) {
             payload: { message: `${player.name} wins the game! Congratulations!`, level: 'info' }
         });
         broadcastToRoom(roomId, {
-            type: ServerMessageType.GAME_STATE_UPDATE,
+            type: ServerMessageType.GAME_STATE_UPDATE, // Send final game state
             payload: { gameState: sanitizeGameStateForClient(gs), roomId: room.id }
         });
         return; // Stop further turn progression
