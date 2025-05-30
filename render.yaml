@@ -2,15 +2,17 @@ services:
   - type: web
     name: dungeon-backend
     env: node
-    rootDir: backend
+    rootDir: backend          # <-- Важно!
     buildCommand: npm install && npm run build
     startCommand: node dist/server.js
     plan: free
+    autoDeploy: true
 
   - type: web
     name: dungeon-frontend
     env: static
-    rootDir: frontend
+    rootDir: frontend         # <-- Важно!
     buildCommand: npm install && npm run build
     staticPublishPath: ../backend/public
     plan: free
+    autoDeploy: true
