@@ -1,14 +1,42 @@
+
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Лутай и Беги Онлайн</title>
-    <link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&display=swap" rel="stylesheet">
-  </head>
+    <title>Dungeon Delvers Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: 'Comic Sans MS', 'Comic Neue', cursive, sans-serif; /* Fallback to system comic fonts */
+        background-color: #4A3B5C; /* Deep purple for background */
+        color: #F0E68C; /* Khaki/Light yellow for text */
+      }
+      /* Custom scrollbar for a more thematic feel */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #2c2136; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #D4AF37; /* Gold */
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #b89228;
+      }
+      .game-title-font { /* Renamed from munchkin-font */
+        font-family: 'Luckiest Guy', cursive; 
+      }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+</head>
   <body>
-    <noscript>Для запуска приложения необходимо включить JavaScript.</noscript>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
   </body>
-</html>
+</html><link rel="stylesheet" href="index.css">
+<script src="index.tsx" type="module"></script>
