@@ -1,3 +1,4 @@
+
 services:
   - type: web
     name: dungeon-fullstack
@@ -6,3 +7,14 @@ services:
     startCommand: npm start
     plan: free
     autoDeploy: true
+
+-----------------------------
+📄 Корневой package.json:
+
+{
+  "name": "dungeon-delvers-online",
+  "scripts": {
+    "build": "npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend install && npm --prefix backend run build",
+    "start": "node backend/dist/server.js"
+  }
+}

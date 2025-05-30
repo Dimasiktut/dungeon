@@ -12,9 +12,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
-// 📦 Раздача собранного фронта из public
 app.use(express.static(path.join(__dirname, '../public')));
-// SPA fallback: отдаём index.html на все остальные маршруты
 app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
