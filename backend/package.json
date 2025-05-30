@@ -12,6 +12,8 @@
     "@types/ws": "^8.18.1"
   },
   "dependencies": {
-    "path-to-regexp": "^8.2.0"
+    "express": "^4.21.2",
+    "path-to-regexp": "^8.2.0",
+    "ws": "^8.18.2"
   }
 }
