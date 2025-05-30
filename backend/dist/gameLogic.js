@@ -343,7 +343,7 @@ export function handleEndTurn(roomId, playerId) {
             payload: { message: `${player.name} wins the game! Congratulations!`, level: 'info' }
         });
         broadcastToRoom(roomId, {
-            type: ServerMessageType.GAME_STATE_UPDATE,
+            type: ServerMessageType.GAME_STATE_UPDATE, // Send final game state
             payload: { gameState: sanitizeGameStateForClient(gs), roomId: room.id }
         });
         return; // Stop further turn progression
