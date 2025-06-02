@@ -11,7 +11,7 @@ import {
   DEFAULT_STARTING_LEVEL,
   MIN_PLAYERS,
   PLACEHOLDER_AVATARS
-} from './constants.js';
+} from './constants';
 import MainMenuScreen from './screens/MainMenuScreen';
 import CreateRoomScreen from './screens/CreateRoomScreen';
 import LobbyScreen from './screens/LobbyScreen';
