@@ -21,6 +21,13 @@ wss.on('connection', (ws) => {
     const clientId = uuidv4();
     console.log(`Клиент ${clientId} подключился`);
     ws.clientId = clientId;
+    ws.send(JSON.stringify({
+        type: ServerMessageType.NOTIFICATION,
+        payload: {
+            message: `Подключено к серверу. Ваш ID: ${clientId}`,
+            level: 'info'
+        }
+    }));
     ws.on('message', (message) => {
         try {
             const clientMessage = JSON.parse(message);
@@ -74,6 +81,12 @@ wss.on('connection', (ws) => {
                 case ClientMessageType.LOOT_ROOM:
                     handleLootRoom(clientMessage.roomId, clientMessage.playerId);
                     break;
+                case "PING":
+                    ws.send(JSON.stringify({
+                        type: "PONG",
+                        payload: {}
+                    }));
+                    break;
                 default:
                     console.warn(`Неизвестный тип сообщения: ${clientMessage.type}`);
                     ws.send(JSON.stringify({
@@ -83,7 +96,7 @@ wss.on('connection', (ws) => {
             }
         }
         catch (error) {
-            console.error('Ошибка обработки сообщения:', message, error);
+            console.error(`Ошибка обработки сообщения от ${clientId}:`, message, error);
             ws.send(JSON.stringify({
                 type: ServerMessageType.ERROR,
                 payload: { message: "Неверный формат сообщения." }
@@ -97,13 +110,6 @@ wss.on('connection', (ws) => {
     ws.on('error', (error) => {
         console.error(`Ошибка WebSocket у клиента ${clientId}:`, error);
     });
-    ws.send(JSON.stringify({
-        type: ServerMessageType.NOTIFICATION,
-        payload: {
-            message: `Подключено к серверу. Ваш ID: ${clientId}`,
-            level: 'info'
-        }
-    }));
 });
 server.listen(PORT, () => {
     console.log(`Сервер Dungeon Delvers Online запущен на порту ${PORT}`);

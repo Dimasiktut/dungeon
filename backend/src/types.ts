@@ -104,10 +104,19 @@ export interface ActiveRoomForClient extends Omit<ActiveRoom, 'players' | 'gameS
 // --- WebSocket Message Types (Mirrors frontend for consistency) ---
 
 export enum ClientMessageType {
-  CREATE_ROOM = 'CREATE_ROOM', JOIN_ROOM = 'JOIN_ROOM', SEND_CHAT_MESSAGE = 'SEND_CHAT_MESSAGE',
-  START_GAME = 'START_GAME', PLAYER_ACTION = 'PLAYER_ACTION',
-  KICK_OPEN_DOOR = 'KICK_OPEN_DOOR', RESOLVE_DOOR_CARD = 'RESOLVE_DOOR_CARD',
-  PLAY_CARD_FROM_HAND = 'PLAY_CARD_FROM_HAND', END_TURN = 'END_TURN', LOOT_ROOM = 'LOOT_ROOM'
+  CREATE_ROOM = 'CREATE_ROOM',
+  JOIN_ROOM = 'JOIN_ROOM',
+  SEND_CHAT_MESSAGE = 'SEND_CHAT_MESSAGE',
+  START_GAME = 'START_GAME',
+  PLAYER_ACTION = 'PLAYER_ACTION',
+  KICK_OPEN_DOOR = 'KICK_OPEN_DOOR',
+  RESOLVE_DOOR_CARD = 'RESOLVE_DOOR_CARD',
+  PLAY_CARD_FROM_HAND = 'PLAY_CARD_FROM_HAND',
+  END_TURN = 'END_TURN',
+  LOOT_ROOM = 'LOOT_ROOM',
+  LEAVE_ROOM = 'LEAVE_ROOM',
+  // ✅ Добавь это:
+  PING = 'PING',
 }
 
 export interface ClientMessage {

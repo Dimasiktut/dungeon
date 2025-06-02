@@ -41,6 +41,14 @@ wss.on('connection', (ws: WebSocket) => {
 
   (ws as any).clientId = clientId;
 
+  ws.send(JSON.stringify({
+    type: ServerMessageType.NOTIFICATION,
+    payload: {
+      message: `Подключено к серверу. Ваш ID: ${clientId}`,
+      level: 'info'
+    }
+  }));
+
   ws.on('message', (message: string) => {
     try {
       const clientMessage = JSON.parse(message) as ClientMessage;
@@ -52,9 +60,11 @@ wss.on('connection', (ws: WebSocket) => {
         case ClientMessageType.CREATE_ROOM:
           handleCreateRoom(ws, clientMessage.payload as CreateRoomPayload);
           break;
+
         case ClientMessageType.JOIN_ROOM:
           handleJoinRoom(ws, clientMessage.payload as JoinRoomPayload);
           break;
+
         case ClientMessageType.SEND_CHAT_MESSAGE: {
           const room = clientMessage.roomId ? getRoom(clientMessage.roomId) : null;
           const player = room?.players.find(p => p.id === clientMessage.playerId);
@@ -69,12 +79,15 @@ wss.on('connection', (ws: WebSocket) => {
           }
           break;
         }
+
         case ClientMessageType.START_GAME:
           handleStartGame(clientMessage.roomId!, clientMessage.playerId!);
           break;
+
         case ClientMessageType.KICK_OPEN_DOOR:
           handleKickOpenDoor(clientMessage.roomId!, clientMessage.playerId!);
           break;
+
         case ClientMessageType.RESOLVE_DOOR_CARD: {
           const payload = clientMessage.payload as PlayerActionPayload;
           if (payload.resolutionAction) {
@@ -82,6 +95,7 @@ wss.on('connection', (ws: WebSocket) => {
           }
           break;
         }
+
         case ClientMessageType.PLAY_CARD_FROM_HAND: {
           const payload = clientMessage.payload as PlayerActionPayload;
           if (payload.cardId) {
@@ -89,12 +103,22 @@ wss.on('connection', (ws: WebSocket) => {
           }
           break;
         }
+
         case ClientMessageType.END_TURN:
           handleEndTurn(clientMessage.roomId!, clientMessage.playerId!);
           break;
+
         case ClientMessageType.LOOT_ROOM:
           handleLootRoom(clientMessage.roomId!, clientMessage.playerId!);
           break;
+
+        case "PING":
+          ws.send(JSON.stringify({
+            type: "PONG",
+            payload: {}
+          }));
+          break;
+
         default:
           console.warn(`Неизвестный тип сообщения: ${clientMessage.type}`);
           ws.send(JSON.stringify({
@@ -103,7 +127,7 @@ wss.on('connection', (ws: WebSocket) => {
           }));
       }
     } catch (error) {
-      console.error('Ошибка обработки сообщения:', message, error);
+      console.error(`Ошибка обработки сообщения от ${clientId}:`, message, error);
       ws.send(JSON.stringify({
         type: ServerMessageType.ERROR,
         payload: { message: "Неверный формат сообщения." }
@@ -119,14 +143,6 @@ wss.on('connection', (ws: WebSocket) => {
   ws.on('error', (error) => {
     console.error(`Ошибка WebSocket у клиента ${clientId}:`, error);
   });
-
-  ws.send(JSON.stringify({
-    type: ServerMessageType.NOTIFICATION,
-    payload: {
-      message: `Подключено к серверу. Ваш ID: ${clientId}`,
-      level: 'info'
-    }
-  }));
 });
 
 server.listen(PORT, () => {

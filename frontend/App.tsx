@@ -631,15 +631,22 @@ const App: React.FC = () => {
   }, [sendMessageToServer, currentRoom, localPlayer, showNotification]);
 
   const handleLeaveRoomOrExitGame = useCallback(() => {
-    if (wsManagerRef.current) {
-      wsManagerRef.current.disconnect();
-      setTimeout(() => {
-        if (wsManagerRef.current) {
-          wsManagerRef.current.connect();
-        }
-      }, 1000);
+    if (currentRoom && localPlayer) {
+      // Отправить сообщение об уходе, если игрок и комната известны
+      sendMessageToServer({
+        type: ClientMessageType.LEAVE_ROOM,
+        roomId: currentRoom.id,
+        playerId: localPlayer.id
+      });
     }
-  }, []);
+
+    // Очищаем локальное состояние
+    setCurrentRoom(null);
+    setLocalPlayer(null);
+    navigateTo(Screen.MainMenu);
+
+    // НЕ нужно disconnect/connect, WebSocket пусть остаётся активным
+  }, [currentRoom, localPlayer, sendMessageToServer, navigateTo]);
 
   // --- Game Action Handlers ---
   const genericGameActionHandler = useCallback((actionType: ClientMessageType, actionPayload?: any) => {

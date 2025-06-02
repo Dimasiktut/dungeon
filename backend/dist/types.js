@@ -38,6 +38,9 @@ export var ClientMessageType;
     ClientMessageType["PLAY_CARD_FROM_HAND"] = "PLAY_CARD_FROM_HAND";
     ClientMessageType["END_TURN"] = "END_TURN";
     ClientMessageType["LOOT_ROOM"] = "LOOT_ROOM";
+    ClientMessageType["LEAVE_ROOM"] = "LEAVE_ROOM";
+    // ✅ Добавь это:
+    ClientMessageType["PING"] = "PING";
 })(ClientMessageType || (ClientMessageType = {}));
 export var ServerMessageType;
 (function (ServerMessageType) {
