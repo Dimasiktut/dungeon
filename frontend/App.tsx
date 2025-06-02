@@ -36,7 +36,7 @@ interface NotificationItem {
 }
 
 const SERVER_URL = window.location.protocol === 'https:' 
-  ? 'wss://dungeon-3auz.onrender.com/' 
+  ? 'wss://dungeon-r410.onrender.com' 
   : 'ws://localhost:8080';
 
 // WebSocket Manager класс
