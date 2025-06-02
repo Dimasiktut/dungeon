@@ -532,23 +532,31 @@ const App: React.FC = () => {
 
   // Инициализация WebSocket менеджера
   useEffect(() => {
+    if (wsManagerRef.current) return; // <--- предотвращаем повторную инициализацию
+
     console.log('🚀 Initializing WebSocket Manager...');
-    
+
+    let clientId = sessionStorage.getItem('clientId');
+    if (!clientId) {
+      clientId = crypto.randomUUID();
+      sessionStorage.setItem('clientId', clientId);
+    }
+
+    const url = `${SERVER_URL}?clientId=${clientId}`;
+
     wsManagerRef.current = new WebSocketManager(
-      SERVER_URL,
+      url,
       setConnectionStatus,
       handleMessage,
       showNotification
     );
-    
-    // Начинаем подключение
+
     wsManagerRef.current.connect();
-    
+
     return () => {
       console.log('🔌 Cleaning up WebSocket Manager...');
-      if (wsManagerRef.current) {
-        wsManagerRef.current.disconnect();
-      }
+      wsManagerRef.current?.disconnect();
+      // wsManagerRef.current = null;  // УБРАТЬ! — иначе пересоздаётся
     };
   }, [handleMessage, showNotification]);
 
