@@ -2,14 +2,23 @@ services:
   - type: web
     name: dungeon-delvers-backend
     env: node
+    rootDir: backend
     buildCommand: |
-      cd backend
       npm install
       npm run build
     startCommand: |
-      node backend/dist/server.js
+      node dist/server.js
     envVars:
       - key: NODE_VERSION
         value: 18
     autoDeploy: true
-    rootDir: .
+
+  - type: web
+    name: dungeon-delvers-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: |
+      npm install
+      npm run build
+    staticPublishPath: dist
+    autoDeploy: true
