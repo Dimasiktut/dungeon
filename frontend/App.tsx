@@ -82,8 +82,13 @@ class WebSocketManager {
     }
 
     try {
-      this.ws = new WebSocket(this.url);
-      
+      let clientId = sessionStorage.getItem('clientId');
+      if (!clientId) {
+        clientId = crypto.randomUUID();
+        sessionStorage.setItem('clientId', clientId);
+      }
+      this.ws = new WebSocket(`${this.url}?clientId=${clientId}`);
+            
       // Таймаут для подключения (важно для Render cold starts)
       const connectionTimeout = setTimeout(() => {
         if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
