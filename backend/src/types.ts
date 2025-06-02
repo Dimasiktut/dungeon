@@ -115,7 +115,6 @@ export enum ClientMessageType {
   END_TURN = 'END_TURN',
   LOOT_ROOM = 'LOOT_ROOM',
   LEAVE_ROOM = 'LEAVE_ROOM',
-  // ✅ Добавь это:
   PING = 'PING',
 }
 

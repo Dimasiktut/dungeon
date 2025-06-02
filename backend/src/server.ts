@@ -119,6 +119,10 @@ wss.on('connection', (ws: WebSocket) => {
           }));
           break;
 
+        case ClientMessageType.LEAVE_ROOM:
+          handleDisconnect(ws);
+          break;
+
         default:
           console.warn(`Неизвестный тип сообщения: ${clientMessage.type}`);
           ws.send(JSON.stringify({
