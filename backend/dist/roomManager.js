@@ -131,11 +131,13 @@ export function handleDisconnect(ws) {
                 payload: systemMessage
             });
             if (room.players.length === 0) {
-                if (!room.gameState || !room.gameState.isGameStarted) {
-                    activeRooms.delete(room.id);
-                    console.log(`Room ${room.id} is empty and was not in an active game. Deleted.`);
-                    return;
-                }
+                setTimeout(() => {
+                    const checkRoom = activeRooms.get(room.id);
+                    if (checkRoom && checkRoom.players.length === 0) {
+                        activeRooms.delete(room.id);
+                        console.log(`Room ${room.id} auto-deleted after timeout.`);
+                    }
+                }, 1000 * 60 * 5); // через 5 минут
             }
             if (disconnectedPlayer.isHost && room.players.length > 0) {
                 room.players[0].isHost = true;
