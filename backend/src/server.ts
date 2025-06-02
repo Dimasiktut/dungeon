@@ -35,11 +35,25 @@ app.get('*', (_, res) => {
 
 const PORT = process.env.PORT || 8080;
 
-wss.on('connection', (ws: WebSocket) => {
-  const clientId = uuidv4();
-  console.log(`Клиент ${clientId} подключился`);
+const connectedClients = new Map<string, WebSocket>();
 
+wss.on('connection', (ws: WebSocket, req) => {
+  let clientId = uuidv4();
+
+  try {
+    const url = new URL(req.url || '', `http://${req.headers.host}`);
+    const queryId = url.searchParams.get('clientId');
+    if (queryId && /^[0-9a-f\-]{36}$/.test(queryId)) {
+      clientId = queryId;
+    }
+  } catch (e) {
+    console.warn('Ошибка извлечения clientId из URL:', e);
+  }
+
+  console.log(`Клиент ${clientId} подключился`);
   (ws as any).clientId = clientId;
+
+  connectedClients.set(clientId, ws);
 
   ws.send(JSON.stringify({
     type: ServerMessageType.NOTIFICATION,
@@ -58,6 +72,7 @@ wss.on('connection', (ws: WebSocket) => {
 
       switch (clientMessage.type) {
         case ClientMessageType.CREATE_ROOM:
+          (ws as any).clientId = clientId;
           handleCreateRoom(ws, clientMessage.payload as CreateRoomPayload);
           break;
 
@@ -141,6 +156,7 @@ wss.on('connection', (ws: WebSocket) => {
 
   ws.on('close', () => {
     console.log(`Клиент ${clientId} отключился`);
+    connectedClients.delete(clientId);
     handleDisconnect(ws);
   });
 

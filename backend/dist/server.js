@@ -17,10 +17,22 @@ app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 const PORT = process.env.PORT || 8080;
-wss.on('connection', (ws) => {
-    const clientId = uuidv4();
+const connectedClients = new Map();
+wss.on('connection', (ws, req) => {
+    let clientId = uuidv4();
+    try {
+        const url = new URL(req.url || '', `http://${req.headers.host}`);
+        const queryId = url.searchParams.get('clientId');
+        if (queryId && /^[0-9a-f\-]{36}$/.test(queryId)) {
+            clientId = queryId;
+        }
+    }
+    catch (e) {
+        console.warn('Ошибка извлечения clientId из URL:', e);
+    }
     console.log(`Клиент ${clientId} подключился`);
     ws.clientId = clientId;
+    connectedClients.set(clientId, ws);
     ws.send(JSON.stringify({
         type: ServerMessageType.NOTIFICATION,
         payload: {
@@ -35,6 +47,7 @@ wss.on('connection', (ws) => {
             clientMessage.playerId = clientId;
             switch (clientMessage.type) {
                 case ClientMessageType.CREATE_ROOM:
+                    ws.clientId = clientId;
                     handleCreateRoom(ws, clientMessage.payload);
                     break;
                 case ClientMessageType.JOIN_ROOM:
@@ -108,6 +121,7 @@ wss.on('connection', (ws) => {
     });
     ws.on('close', () => {
         console.log(`Клиент ${clientId} отключился`);
+        connectedClients.delete(clientId);
         handleDisconnect(ws);
     });
     ws.on('error', (error) => {
